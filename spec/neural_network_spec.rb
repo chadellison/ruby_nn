@@ -1,4 +1,4 @@
-require 'neural_network'
+require 'ruby_nn'
 
 describe 'neural_network' do
   it 'can be initialize' do
