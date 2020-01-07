@@ -1,6 +1,6 @@
-Gem::Specification.new 'ruby_nn', '1.5' do |s|
+Gem::Specification.new 'ruby_nn', '1.6' do |s|
   s.name        = 'ruby_nn'
-  s.version     = '0.1.5'
+  s.version     = '0.1.6'
   s.date        = '2010-04-28'
   s.summary     = "A neural network built in ruby"
   s.description = "This is a feed forward mlp neural network"

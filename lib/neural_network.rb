@@ -105,16 +105,12 @@ module RubyNN
       end
     end
 
-    # def save_weights
-    #   all_weight_values = layer_one_weights.flatten +
-    #                       layer_two_weights.flatten +
-    #                       layer_three_weights.flatten +
-    #                       layer_four_weights.flatten
-    #
-    #   Weight.order(:weight_count).each_with_index do |weight, index|
-    #     weight.update(value: all_weight_values[index].to_s)
-    #   end
-    # end
+    def save_weights(filename)
+      File.open(filename, "w") do |f|
+        f.write(@weights.to_json)
+      end
+      puts 'saved weights to ' + filename
+    end
 
     def find_deltas(predictions, outcomes)
       deltas = []
