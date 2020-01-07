@@ -91,12 +91,6 @@ module RubyNN
     # end
 
     def calculate_prediction(input)
-      # input = normalize_values(abstraction)
-      # @layer_one_predictions = leaky_relu(multiply_vector(input, layer_one_weights))
-      # @layer_two_predictions = leaky_relu(multiply_vector(layer_one_predictions, layer_two_weights))
-      # @layer_three_predictions = leaky_relu(multiply_vector(layer_two_predictions, layer_three_weights))
-      # @layer_four_predictions = (multiply_vector(layer_three_predictions, layer_four_weights))
-
       layer_parameters[0..-2].each_with_index do |layer, i|
         input_value = i == 0 ? input : @predictions[i - 1]
         prediction_vector = multiply_vector(input_value, find_weights(i))
