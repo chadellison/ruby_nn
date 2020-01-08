@@ -16,7 +16,9 @@
  @layer_parameters=[4, 8, 6],
  @predictions=[],
  @weight_matrix=[],
- @weights=[]>```
+ @weights=[]>
+ @error=0
+ ```
 
 - Generating random weights
 ```neural_network = RubyNN::NeuralNetwork.new([4, 8, 6])
@@ -58,6 +60,7 @@ inputs = [[3.5, 2.2, 0.3, 1.8], [1.5, 8.2, 2.3, 1.8], ...]
 target_outputs = [[3, 1, 1.2, 0.3, 0.2, 2.1], [2, 1.2, 1.1, 2.3, 4.2, 1.1], ...]
 inputs.each_with_index do |input, i|
   neural_network.train(input, target_outputs[i])
+  puts neural_network.error.to_s if % 100 == 0 # => to see the error rate
 end
 ```
 

@@ -2,7 +2,7 @@ require 'neural_network_error'
 
 module RubyNN
   class NeuralNetwork
-    attr_reader :layer_parameters, :alpha
+    attr_reader :layer_parameters, :alpha, :error
 
     def initialize(layer_parameters, alpha = 0.001)
       @predictions = []
@@ -11,6 +11,7 @@ module RubyNN
       @weight_matrix = []
       @deltas = []
       @layer_parameters = layer_parameters
+      @error = 0
     end
 
     def initialize_weights
@@ -117,8 +118,7 @@ module RubyNN
       predictions.size.times do |index|
         delta = predictions[index] - outcomes[index]
         deltas[index] = delta
-        error = delta ** 2
-        update_error_rate(error)
+        @error = delta ** 2
       end
 
       deltas
@@ -183,13 +183,6 @@ module RubyNN
       end
 
       [first, second, third]
-    end
-
-    def update_error_rate(error)
-      error_object = JSON.parse(get_from_cache('error_rate')).symbolize_keys
-      error_object[:count] += 1
-      error_object[:error] += error
-      add_to_cache('error_rate', error_object)
     end
 
     def back_propagation_multiplyer(v1, v2)
