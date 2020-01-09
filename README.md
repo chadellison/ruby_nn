@@ -11,13 +11,10 @@
 ### The layer parameters
 - The first element in the array is the number of nodes in the input layer and the last element in the array is the number of nodes in the output layer. These as well as the number of nodes for the hidden layers are configurable. For example, the following will initialize a network with 4 input nodes, one hidden layer with 8 nodes, and one output layer with 6 nodes: ```RubyNN::NeuralNetwork.new([4, 8, 6])
 => #<RubyNN::NeuralNetwork:0x00007faa712f98d8
- @alpha=0.001,
- @deltas=[],
- @layer_parameters=[4, 8, 6],
- @predictions=[],
- @weight_matrix=[],
- @weights=[]>
- @error=0
+@alpha = alpha
+@weight_matrix = []
+@layer_parameters = layer_parameters
+@error = 0>
  ```
 
 - Generating random weights
@@ -25,19 +22,16 @@
 neural_network.initialize_weights
 ```
 This will load the appropriate number of weights for the given layer parameters =>
-```@weights=
-  [
+```@weight_matrix=
+  [[[
     0.27467491765174346,
      0.12210417074805302,
      0.8003157818002387,
-     0.6389939906739756,
-     0.08775650196076201,
-     0.7875689188665604
-   ...]
+   ...]]]
 ```
 The weights can also be set on the Network
 ```
-neural_network.set_weights([0.27467491765174346, ...])
+neural_network.set_weights([[[0.27467491765174346, ...]]])
 ```
 
 - To feed data through the network:

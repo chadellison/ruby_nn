@@ -1,22 +1,23 @@
 require 'neural_network_error'
-
+require 'pry'
 module RubyNN
   class NeuralNetwork
     attr_reader :layer_parameters, :alpha, :error
 
     def initialize(layer_parameters, alpha = 0.001)
-      @predictions = []
       @alpha = alpha
-      @weights = []
       @weight_matrix = []
-      @deltas = []
       @layer_parameters = layer_parameters
       @error = 0
     end
 
     def initialize_weights
-      weight_counts.reduce(0, :+).times { @weights << rand }
-      @weights
+      weights = []
+      weight_counts.reduce(0, :+).times { weights << rand }
+      layer_parameters[0..-2].each_with_index do |layer, i|
+        @weight_matrix[i] = find_weights(i, weights)
+      end
+      @weight_matrix
     end
 
     def offsets
@@ -35,8 +36,8 @@ module RubyNN
       end
     end
 
-    def set_weights(weights)
-      @weights = weights
+    def set_weights(weight_matrix)
+      @weight_matrix = weight_matrix
     end
 
     def weight_counts
@@ -54,13 +55,14 @@ module RubyNN
     end
 
     def calculate_prediction(input)
+      predictions = []
       layer_parameters[0..-2].each_with_index do |layer, i|
-        input_value = i == 0 ? input : @predictions[i - 1]
-        prediction_vector = multiply_vector(input_value, find_weights(i))
+        input_value = i == 0 ? input : predictions[i - 1]
+        prediction_vector = multiply_vector(input_value, @weight_matrix[i])
         prediction_vector = leaky_relu(prediction_vector) if layer_parameters[0..-2][i + 1]
-        @predictions << prediction_vector
+        predictions << prediction_vector
       end
-      @predictions.last
+      predictions
     end
 
     def weighted_sum(input, weights)
@@ -80,35 +82,33 @@ module RubyNN
       predictions
     end
 
-    def find_weights(i)
+    def find_weights(i, weights)
       weight_amount, offset, slice_value = weight_counts[i], offsets[i], layer_parameters[i]
-      weight_slice = @weights[(offset)...(offset + weight_amount)].each_slice(slice_value).to_a
-      @weight_matrix << weight_slice
-      weight_slice
+      weights[(offset)...(offset + weight_amount)].each_slice(slice_value).to_a
     end
 
     def train(input, target_output)
-      calculate_prediction(input)
-      create_deltas(target_output)
-      handle_weights
+      predictions = calculate_prediction(input)
+      back_propagate(predictions, target_output)
     end
 
-    def create_deltas(outcomes)
-      @deltas = []
+    def back_propagate(predictions, target_output)
       reversed_weight_matrix = @weight_matrix.reverse
-      @predictions.reverse.each_with_index do |prediction, i|
-        if i == 0
-          @deltas << find_deltas(prediction, outcomes)
-        else
-          weighted = multiply_vector(@deltas.last, reversed_weight_matrix[i].transpose)
-          @deltas << back_propagation_multiplyer(weighted, relu_derivative(prediction))
+      last_weighted = []
+      predictions.reverse.each_with_index do |prediction, i|
+        delta_set = find_deltas(prediction, target_output) if i == 0
+        if i != 0
+          delta_set = back_propagation_multiplyer(last_weighted, relu_derivative(prediction))
         end
+        weighted = multiply_vector(delta_set, reversed_weight_matrix[i].transpose)
+        last_weighted = weighted
+        update_weights(delta_set, i)
       end
     end
 
     def save_weights(filename)
       File.open(filename, "w") do |f|
-        f.write(@weights.to_json)
+        f.write(@weight_matrix.to_json)
       end
       puts 'saved weights to ' + filename
     end
@@ -124,19 +124,13 @@ module RubyNN
       deltas
     end
 
-    def handle_weights
+    def update_weights(weighted_deltas, i)
       reversed_weight_matrix = @weight_matrix.reverse
-      @deltas.each_with_index do |delta_set, i|
-        update_weights(delta_set, reversed_weight_matrix[i])
-      end
-    end
-
-    def update_weights(weighted_deltas, weight_matrix)
-      weight_matrix.size.times do |index|
-        weight_matrix[index].size.times do |count|
-          weight = weight_matrix[index][count]
+      @weight_matrix.reverse[i].size.times do |index|
+        @weight_matrix.reverse[i][index].size.times do |count|
+          weight = @weight_matrix.reverse[i][index][count]
           adjusted_value = (weight - (@alpha * weighted_deltas[index]))
-          weight_matrix[index][count] = adjusted_value if adjusted_value > 0
+          @weight_matrix.reverse[i][index][count] = adjusted_value if adjusted_value > 0
         end
       end
     end
@@ -198,6 +192,10 @@ module RubyNN
           value / sum
         end
       end
+    end
+
+    def get_weights
+      @weight_matrix
     end
   end
 end
