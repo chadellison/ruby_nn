@@ -1,5 +1,4 @@
 require 'neural_network_error'
-require 'pry'
 module RubyNN
   class NeuralNetwork
     attr_reader :layer_parameters, :alpha, :error
