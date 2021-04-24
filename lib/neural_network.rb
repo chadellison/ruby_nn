@@ -148,34 +148,11 @@ module RubyNN
     end
 
     def leaky_relu(input)
-      input.map { |value| value > 0 ? value : 0.0001 }
+      input.map { |value| value > 0 ? value : (value * 0.001) }
     end
 
     def relu_derivative(output)
-      output.map { |value| value > 0 ? 1 : 0.0001 }
-    end
-
-    def calculate_outcomes(abstraction)
-      first = 0.0
-      second = 0.0
-      third = 0.0
-      abstraction.setups.each do |setup|
-        white_wins = setup.outcomes[:white_wins].to_f
-        black_wins = setup.outcomes[:black_wins].to_f
-        draws = setup.outcomes[:draws].to_f
-
-        if setup.position_signature[-1] == 'w'
-          first += white_wins
-          second += black_wins
-        else
-          second += black_wins
-          first += white_wins
-        end
-
-        third = draws
-      end
-
-      [first, second, third]
+      output.map { |value| value > 0 ? 1 : (value * 0.001) }
     end
 
     def back_propagation_multiplyer(v1, v2)
